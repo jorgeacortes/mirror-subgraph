@@ -1,0 +1,101 @@
+[
+  {
+    "inputs": [
+      { "internalType": "address", "name": "logic_", "type": "address" }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "crowdfundProxy",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "name",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "symbol",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "operator",
+        "type": "address"
+      }
+    ],
+    "name": "CrowdfundDeployed",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      { "internalType": "string", "name": "name_", "type": "string" },
+      { "internalType": "string", "name": "symbol_", "type": "string" },
+      {
+        "internalType": "address payable",
+        "name": "operator_",
+        "type": "address"
+      },
+      {
+        "internalType": "address payable",
+        "name": "fundingRecipient_",
+        "type": "address"
+      },
+      { "internalType": "uint256", "name": "fundingCap_", "type": "uint256" },
+      {
+        "internalType": "uint256",
+        "name": "operatorPercent_",
+        "type": "uint256"
+      }
+    ],
+    "name": "createCrowdfund",
+    "outputs": [
+      { "internalType": "address", "name": "crowdfundProxy", "type": "address" }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "logic",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "parameters",
+    "outputs": [
+      {
+        "internalType": "address payable",
+        "name": "operator",
+        "type": "address"
+      },
+      {
+        "internalType": "address payable",
+        "name": "fundingRecipient",
+        "type": "address"
+      },
+      { "internalType": "uint256", "name": "fundingCap", "type": "uint256" },
+      {
+        "internalType": "uint256",
+        "name": "operatorPercent",
+        "type": "uint256"
+      },
+      { "internalType": "string", "name": "name", "type": "string" },
+      { "internalType": "string", "name": "symbol", "type": "string" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  }
+]

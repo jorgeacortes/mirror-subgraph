@@ -1,0 +1,83 @@
+specVersion: 0.0.2
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: CrowdfundFactory
+    network: mainnet
+    source:
+      address: "0x224B867bA9dB850671f5a0Fc6B75A2A825Ce8e19"
+      abi: CrowdfundFactory
+      startBlock: 12814081
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - CrowdfundDeployed
+      abis:
+        - name: CrowdfundFactory
+          file: ./abis/CrowdfundFactory.json
+        - name: TieredCrowdfundProxy
+          file: ./abis/TieredCrowdfundProxy.json
+      eventHandlers:
+        - event: CrowdfundDeployed(address,string,string,address)
+          handler: handleCrowdfundDeployed
+      file: ./src/mappings/crowdfundfactory.ts
+
+templates:
+  - kind: ethereum/contract
+    name: CrowdfundLogic
+    network: mainnet
+    source:
+      abi: CrowdfundLogic
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      file: ./src/mappings/crowdfundlogic.ts
+      entities:
+        - Contribution
+        - Contributor
+        - Crowdfund
+      abis:
+        - name: CrowdfundLogic
+          file: ./abis/CrowdfundLogic.json
+        - name: TieredCrowdfundProxy
+          file: ./abis/TieredCrowdfundProxy.json
+      eventHandlers:
+        # - event: Approval(indexed address,indexed address,uint256)
+        #   handler: handleApproval
+        # - event: BidAccepted(uint256)
+        #   handler: handleBidAccepted
+        - event: Contribution(address,uint256)
+          handler: handleContribution
+        - event: FundingClosed(uint256,uint256)
+          handler: handleFundingClosed
+        # - event: Redeemed(address,uint256)
+        #   handler: handleRedeemed
+        # - event: Transfer(indexed address,indexed address,uint256)
+        #   handler: handleTransfer
+  - kind: ethereum/contract
+    name: Editions
+    network: mainnet
+    source:
+      abi: Editions
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      file: ./src/mappings/editions.ts
+      entities:
+        - Contribution
+        - Contributor
+        - Crowdfund
+        - Edition
+      abis:
+        - name: Editions
+          file: ./abis/Editions.json
+      eventHandlers:
+        - event: EditionCreated(uint256,uint256,address,indexed uint256)
+          handler: handleEditionCreated
+        - event: EditionPurchased(indexed uint256,indexed uint256,uint256,indexed address)
+          handler: handleEditionPurchased

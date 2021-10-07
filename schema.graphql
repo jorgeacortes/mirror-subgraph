@@ -1,0 +1,39 @@
+"A Crowdfund created by the CrowdfundFactory"
+type Crowdfund @entity {
+  id: ID! # crowdfundproxy address
+  operator: Bytes! 
+  crowdfundProxy: Bytes!
+  editions: Bytes # Edition contract address
+  name: String!
+  symbol: String!
+  fundingCap: BigInt!
+  operatorPercent: BigInt!
+
+  contributors: [Contribution!] @derivedFrom(field: "crowdfund")
+  funded: Boolean!
+  closed: Boolean!
+  amountRaised: BigInt!
+}
+
+"The user that contributes to crowdfunds on Mirror"
+type Contributor @entity {
+  id: ID! # address
+  contributions: [Contribution!]! @derivedFrom(field: "contributor")
+}
+
+"Contribution of an user to a crowdfound"
+type Contribution @entity {
+  id: ID! # tx hash
+  contributor: Contributor!
+  funds: BigInt!
+  crowdfund: Crowdfund!
+}
+
+type Edition @entity {
+  id: ID! # creation tx hash
+  quantity: BigInt!
+  price: BigInt!
+  sold: BigInt!
+  crowdfund: Crowdfund!
+  editionId: BigInt!
+}
