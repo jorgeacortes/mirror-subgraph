@@ -1,24 +1,34 @@
 "A Crowdfund created by the CrowdfundFactory"
 type Crowdfund @entity {
   id: ID! # crowdfundproxy address
-  operator: Bytes! 
+  operator: Bytes!
   crowdfundProxy: Bytes!
-  editions: Bytes # Edition contract address
+  editionsContract: EditionsContract! # Editions source contract
   name: String!
   symbol: String!
   fundingCap: BigInt!
   operatorPercent: BigInt!
 
   contributors: [Contribution!] @derivedFrom(field: "crowdfund")
-  funded: Boolean!
   closed: Boolean!
-  amountRaised: BigInt!
+  amountRaised: BigInt! # Sum of the contributions with direct funds and with purchased editions
+
+  editions:[Edition!] @derivedFrom(field: "crowdfund")
 }
 
 "The user that contributes to crowdfunds on Mirror"
 type Contributor @entity {
   id: ID! # address
-  contributions: [Contribution!]! @derivedFrom(field: "contributor")
+  contributions: [Contribution!] @derivedFrom(field: "contributor")
+  editionContributions: [EditionContribution!] @derivedFrom(field: "contributor")
+}
+
+"Contribution to a crowdfund by purchasing an Edition"
+type EditionContribution @entity {
+  id: ID! # tx hash
+  contributor: Contributor!
+  funds: BigInt!
+  edition: Edition!
 }
 
 "Contribution of an user to a crowdfound"
@@ -29,11 +39,21 @@ type Contribution @entity {
   crowdfund: Crowdfund!
 }
 
+"The contract that creates editions for one or multiple crowdfunds "
+type EditionsContract @entity {
+  id: ID! # contract address
+  editions:[Edition!] @derivedFrom(field: "address")
+  crowdfunds: [Crowdfund!]! @derivedFrom(field: "editionsContract")
+}
+
+"A crowdfund edition"
 type Edition @entity {
-  id: ID! # creation tx hash
+  id: ID! # contract address + '-' + editionId(hex)
+  contributors: [Contributor!]
   quantity: BigInt!
   price: BigInt!
   sold: BigInt!
   crowdfund: Crowdfund!
+  address: EditionsContract!
   editionId: BigInt!
 }

@@ -1,24 +1,13 @@
-import { BigInt } from "@graphprotocol/graph-ts"
-
+import { log } from '@graphprotocol/graph-ts'
 import {
   Contribution,
   FundingClosed
 } from "../../generated/templates/CrowdfundLogic/CrowdfundLogic"
-
-import {
-  EditionCreated,
-  EditionPurchased
-} from "../../generated/templates/Editions/Editions"
-
 import {
   Contribution as ContributionEntity,
   Contributor as ContributorEntity,
   Crowdfund as CrowdfundEntity,
 } from "../../generated/schema"
-
-import {
-  TieredCrowdfundProxy,
-} from "../../generated/CrowdfundFactory/TieredCrowdfundProxy"
 
 export function handleContribution(event: Contribution): void {
     const contributionId = event.transaction.hash.toHex()
@@ -32,13 +21,6 @@ export function handleContribution(event: Contribution): void {
 
     if(crowdfund) {
 
-      // TODO: Not working
-      // let proxyContract = TieredCrowdfundProxy.bind(event.address);
-      // crowdfund.editions = proxyContract.editions()
-      // crowdfund.operatorPercent = proxyContract.operatorPercent()
-      // crowdfund.fundingCap = proxyContract.fundingCap()
-
-
       if(!contributor) {
         contributor = new ContributorEntity(contributorAddr)
         contributor.save()
@@ -50,14 +32,14 @@ export function handleContribution(event: Contribution): void {
         contribution.contributor = contributorAddr
         contribution.save()
       } else {
-        throw "There cannot be duplicate contributions."
+        log.error("There cannot be duplicate contributions.",[])
       }
       crowdfund.amountRaised = crowdfund.amountRaised.plus(event.params.amount)
 
       crowdfund.save()
     }
     else {
-      throw "A contribution to an unexisting crowdfund cannot be possible."
+      log.error("A contribution to an unexisting crowdfund cannot be possible.",[])
     }
 
   }
@@ -69,10 +51,8 @@ export function handleFundingClosed(event: FundingClosed): void {
 
   if(crowdfund) {
     crowdfund.closed = true
-    if(crowdfund.amountRaised >= crowdfund.fundingCap) {
-      crowdfund.funded = true
-    }
+    crowdfund.save()
   } else {
-    throw "Event of an unexisting crowdfund cannot be possible."
+    log.error("Event of an unexisting crowdfund cannot be possible.",[])
   }
 }

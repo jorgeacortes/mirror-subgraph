@@ -8,13 +8,14 @@ dataSources:
     source:
       address: "0x224B867bA9dB850671f5a0Fc6B75A2A825Ce8e19"
       abi: CrowdfundFactory
-      startBlock: 12814081
+      startBlock: 12812000 #12814079 #12814081
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
       language: wasm/assemblyscript
       entities:
-        - CrowdfundDeployed
+        - Crowdfund
+        - EditionsContract
       abis:
         - name: CrowdfundFactory
           file: ./abis/CrowdfundFactory.json
@@ -59,25 +60,30 @@ templates:
         # - event: Transfer(indexed address,indexed address,uint256)
         #   handler: handleTransfer
   - kind: ethereum/contract
-    name: Editions
+    name: CrowdfundEditions
     network: mainnet
     source:
-      abi: Editions
+      abi: CrowdfundEditions
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
       language: wasm/assemblyscript
       file: ./src/mappings/editions.ts
       entities:
-        - Contribution
         - Contributor
         - Crowdfund
         - Edition
+        - EditionContribution
       abis:
-        - name: Editions
-          file: ./abis/Editions.json
+        - name: CrowdfundEditions
+          file: ./abis/CrowdfundEditions.json
       eventHandlers:
-        - event: EditionCreated(uint256,uint256,address,indexed uint256)
+        # - event: Approval(indexed address,indexed address,indexed uint256)
+        # - event: ApprovalForAll(indexed address,indexed address,bool)
+        - event: EditionCreated(uint256,uint256,address,indexed uint256,bytes32)
           handler: handleEditionCreated
-        - event: EditionPurchased(indexed uint256,indexed uint256,uint256,indexed address)
+        # - event: EditionCreatorChanged(indexed address,indexed address)
+        - event: EditionPurchased(indexed uint256,indexed uint256,uint256,uint256,address,address)
           handler: handleEditionPurchased
+        # - event: OwnershipTransferred(indexed address,indexed address)
+        # - event: Transfer(indexed address,indexed address,indexed uint256)

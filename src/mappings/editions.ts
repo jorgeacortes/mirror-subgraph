@@ -1,48 +1,82 @@
-import { BigInt } from "@graphprotocol/graph-ts"
-
+import { BigInt, log } from "@graphprotocol/graph-ts"
 import {
-  EditionCreated,
-  EditionPurchased
-} from "../../generated/templates/Editions/Editions"
-
+    EditionCreated,
+    EditionPurchased
+  } from "../../generated/templates/CrowdfundEditions/CrowdfundEditions"
 import {
-  Contribution as ContributionEntity,
   Contributor as ContributorEntity,
   Crowdfund as CrowdfundEntity,
-  Edition as EditionsEntity
+  Edition as EditionsEntity,
+  EditionContribution as EditionContributionEntity
 } from "../../generated/schema"
 
+
+function getEditionUniqueId(address:string, editionId:string): string {
+  return address+'-'+editionId
+}
+
 export function handleEditionCreated(event: EditionCreated): void {
-  const crowdfundProxy = event.address.toHex()
+  const crowdfundProxy = event.params.fundingRecipient.toHex()
   let crowdfund = CrowdfundEntity.load(crowdfundProxy)
   if(crowdfund) {
-    crowdfund.editions = event.address
-    const edition = new EditionsEntity(crowdfundProxy+event.params.editionId.toHex())
+    const editionID = getEditionUniqueId(event.address.toHex(), event.params.editionId.toHex())
+    let edition = new EditionsEntity(editionID)
+    edition.address = event.address.toHex()
     edition.price = event.params.price
     edition.quantity = event.params.quantity
     edition.sold = BigInt.fromI32(0)
     edition.editionId = event.params.editionId
-    edition.crowdfund = crowdfundProxy
+    edition.crowdfund = crowdfundProxy // equivalent to fundingRecipient
+    edition.contributors = new Array<string>()
+    edition.save()
   } else {
-    throw "Event of an unexisting crowdfund cannot be possible."
+    log.error("Event of an unexisting crowdfund cannot be possible.",[])
   }
 }
 
 export function handleEditionPurchased(event: EditionPurchased): void {
-  const editionEntityId = event.address.toHex()+event.params.editionId.toHex()
+  const editionEntityId = getEditionUniqueId(event.address.toHex(), event.params.editionId.toHex())
   let edition = EditionsEntity.load(editionEntityId)
 
   if(!edition) {
-    throw "Event of an unexisting edition cannot be possible."
+    log.error("Event of an unexisting edition cannot be possible.",[])
   } else {
-    const crowdfundProxy = event.address.toHex()
-    let crowdfund = CrowdfundEntity.load(crowdfundProxy)
+    let crowdfund = CrowdfundEntity.load(edition.crowdfund)
     if(!crowdfund) {
-      throw "Event of an unexisting crowdfund cannot be possible."
+      log.error("Event of an unexisting crowdfund cannot be possible.",[])
     } else {
-      edition.sold = edition.sold.plus(event.params.numSold)
-      const expent = event.params.numSold.times(edition.price)
-      crowdfund.amountRaised = crowdfund.amountRaised.plus(expent)
+      const contributorId: string = event.params.buyer.toHex()
+      let contributor = ContributorEntity.load(contributorId)
+      if(!contributor) {
+        contributor = new ContributorEntity(contributorId)
+        contributor.save()
+      }
+
+      const editionContributionId = event.transaction.hash.toHex()
+      let editionContribution = EditionContributionEntity.load(editionContributionId)
+      if(!editionContribution){
+        editionContribution = new EditionContributionEntity(editionContributionId)
+        editionContribution.contributor = contributorId
+        editionContribution.edition = editionEntityId
+        editionContribution.funds = edition.price
+        editionContribution.save()
+      } else {
+        log.error("Duplicated edition purchase.",[])
+      }
+
+      let contributors = edition.contributors
+      if(contributors) {
+        contributors.push(contributorId)
+      } else {
+        contributors = [contributorId]
+      }
+      edition.contributors = contributors
+
+      edition.sold = edition.sold.plus(BigInt.fromI32(1))
+      crowdfund.amountRaised = crowdfund.amountRaised.plus(edition.price)
+
+      edition.save()
+      crowdfund.save()
     }
   }
 }
