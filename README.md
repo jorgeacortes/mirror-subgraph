@@ -2,6 +2,7 @@
 
 A project for creating subgraphs for mirror.xyz contracts. Work in progress.
 
+Deployment currently available at [https://thegraph.com/hosted-service/subgraph/jorgeacortes/mirror-subgraph](https://thegraph.com/hosted-service/subgraph/jorgeacortes/mirror-subgraph)
 ## Crowdfund factories
 
 Deployer: `0x3527a204a5260a0e36ca695312379370328e4e6c`

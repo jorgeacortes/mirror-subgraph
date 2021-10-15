@@ -1,13 +1,15 @@
 {
-  "name": "mirrorgraph",
-  "license": "UNLICENSED",
+  "name": "mirror-subgraph",
+  "version": "0.1.0",
+  "license": "MIT",
   "scripts": {
     "codegen": "graph codegen",
     "build": "graph build",
-    "deploy": "graph deploy --node https://api.studio.thegraph.com/deploy/ mirrorgraph",
-    "create-local": "graph create --node http://localhost:8020/ mirrorgraph",
-    "remove-local": "graph remove --node http://localhost:8020/ mirrorgraph",
-    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 mirrorgraph"
+    "create": "graph create jorgeacortes/mirror-subgraph --node https://api.thegraph.com/deploy/",
+    "deploy": "graph deploy --product hosted-service  jorgeacortes/mirror-subgraph",
+    "create-local": "graph create --node http://localhost:8020/ mirror-subgraph",
+    "remove-local": "graph remove --node http://localhost:8020/ mirror-subgraph",
+    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 mirror-subgraph"
   },
   "dependencies": {
     "@graphprotocol/graph-cli": "0.22.1",
